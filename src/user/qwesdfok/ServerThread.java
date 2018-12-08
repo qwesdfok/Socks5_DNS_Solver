@@ -78,6 +78,7 @@ public class ServerThread extends Thread
 		{
 			//ignore
 		}
+		workThreadList.forEach(WorkThread::interrupt);
 	}
 
 	public final WorkThread.ConnectionConf getConf()
