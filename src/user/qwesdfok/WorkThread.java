@@ -11,8 +11,8 @@ public class WorkThread extends Thread
 {
 	public static class ConnectionConf
 	{
-		final int targetPort;
-		final String targetAddr;
+		int targetPort;
+		String targetAddr;
 		final DNSSolver dnsSolver;
 		final Vector<WorkThread> workThreadList;
 		final Vector<String> dns = new Vector<>();

@@ -1,12 +1,12 @@
 package user.qwesdfok;
 
-import Libs.Log;
-
+import javax.swing.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerThread extends Thread
 {
@@ -15,12 +15,15 @@ public class ServerThread extends Thread
 	private int count = 0;
 	private final WorkThread.ConnectionConf conf;
 	private final Vector<WorkThread> workThreadList = new Vector<>();
+	private AtomicBoolean modified = new AtomicBoolean(false);
+	private MainWindow mainWindow;
 
 //	private ArrayList<WorkThread> workThreadList = new ArrayList<>();
 
-	public ServerThread(int listenPort, String targetAddr, int targetPort, DNSSolver dnsSolver)
+	public ServerThread(int listenPort, String targetAddr, int targetPort, DNSSolver dnsSolver, MainWindow mainWindow)
 	{
 		super("ServerThread");
+		this.mainWindow = mainWindow;
 		this.listenPort = listenPort;
 		conf = new WorkThread.ConnectionConf(targetPort, targetAddr, dnsSolver, workThreadList);
 	}
@@ -30,7 +33,20 @@ public class ServerThread extends Thread
 	{
 		try
 		{
-			serverSocket = new ServerSocket(listenPort);
+			boolean retry = true;
+			while (retry)
+			{
+				try
+				{
+					modified.set(false);
+					serverSocket = new ServerSocket(listenPort);
+					retry = false;
+				} catch (IOException e)
+				{
+					JOptionPane.showConfirmDialog(mainWindow.getMainWindow(), "Listen port is already userd", "Error", JOptionPane.YES_NO_OPTION);
+					while (!modified.get()) Thread.sleep(100);
+				}
+			}
 			serverSocket.setSoTimeout(100);
 			Socket inSocket = null;
 			while (true)
@@ -67,5 +83,11 @@ public class ServerThread extends Thread
 	public final WorkThread.ConnectionConf getConf()
 	{
 		return conf;
+	}
+
+	public void setListenPort(int listenPort)
+	{
+		this.listenPort = listenPort;
+		modified.set(true);
 	}
 }

@@ -59,7 +59,7 @@ public class ListPanel
 	private Vector<String> dataList;
 	private DNSSolver dnsSolver;
 
-	public ListPanel(Vector<String> dataList,DNSSolver dnsSolver)
+	public ListPanel(Vector<String> dataList, DNSSolver dnsSolver)
 	{
 		this.dnsSolver = dnsSolver;
 		this.dataList = dataList;

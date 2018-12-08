@@ -18,8 +18,8 @@ public class LogPanel
 		logArea.setEditable(false);
 		Log.setDefault_log(new Log(this::printLog));
 		UITools uiTools = new UITools();
-		panel.add(logArea, uiTools.autoConfig(2, 1, 1.0, 1.0));
-		panel.add(printLog, uiTools.nextLine().autoConfig(1, 1, 1.0, 0.0));
+		panel.add(printLog, uiTools.autoConfig(1, 1, 1.0, 0.0));
+		panel.add(logArea, uiTools.nextLine().autoConfig(2, 1, 1.0, 1.0));
 	}
 
 	public void printLog(String log)
