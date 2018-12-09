@@ -16,6 +16,7 @@ public class ServerThread extends Thread
 	private final WorkThread.ConnectionConf conf;
 	private final Vector<WorkThread> workThreadList = new Vector<>();
 	private AtomicBoolean modified = new AtomicBoolean(false);
+	private AtomicBoolean started = new AtomicBoolean(false);
 	private MainWindow mainWindow;
 
 //	private ArrayList<WorkThread> workThreadList = new ArrayList<>();
@@ -41,9 +42,11 @@ public class ServerThread extends Thread
 					modified.set(false);
 					serverSocket = new ServerSocket(listenPort);
 					retry = false;
+					started.set(true);
+					JOptionPane.showMessageDialog(mainWindow.getMainWindow(), "已启动");
 				} catch (IOException e)
 				{
-					JOptionPane.showConfirmDialog(mainWindow.getMainWindow(), "Listen port is already userd", "Error", JOptionPane.YES_NO_OPTION);
+					JOptionPane.showMessageDialog(mainWindow.getMainWindow(), "端口已经被占用");
 					while (!modified.get()) Thread.sleep(100);
 				}
 			}
@@ -59,7 +62,7 @@ public class ServerThread extends Thread
 				{
 					if (this.isInterrupted())
 					{
-						workThreadList.forEach(WorkThread::interrupt);
+						workThreadList.forEach(WorkThread::closeAll);
 						break;
 					}
 					inSocket = null;
@@ -78,7 +81,7 @@ public class ServerThread extends Thread
 		{
 			//ignore
 		}
-		workThreadList.forEach(WorkThread::interrupt);
+		workThreadList.forEach(WorkThread::closeAll);
 	}
 
 	public final WorkThread.ConnectionConf getConf()
@@ -90,5 +93,10 @@ public class ServerThread extends Thread
 	{
 		this.listenPort = listenPort;
 		modified.set(true);
+	}
+
+	public AtomicBoolean getStarted()
+	{
+		return started;
 	}
 }

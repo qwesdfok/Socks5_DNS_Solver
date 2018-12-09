@@ -32,8 +32,10 @@ public class DNSSolver
 			read();
 		} else
 		{
-			ip_blacklist.add("12\\d\\.\\d+\\.\\d+\\.\\d+");
+			ip_blacklist.add("12[12]\\.\\d+\\.\\d+\\.\\d+");
 			host_blacklist.add(".*google\\.com");
+			host_blacklist.add(".*youtube\\.com");
+			host_blacklist.add(".*facebook\\.com");
 			dns_list.add("8.8.8.8");
 			dns_list.add("8.8.4.4");
 		}

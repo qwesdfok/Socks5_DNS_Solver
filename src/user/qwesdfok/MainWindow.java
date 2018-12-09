@@ -16,19 +16,19 @@ public class MainWindow
 	private JFrame mainWindow = new JFrame("DNS Solver");
 	private SystemTray systemTray = null;
 	private TrayIcon trayIcon = null;
-	private JCheckBox local_dns = new JCheckBox("Local_DNS", false);
+	private JCheckBox local_dns = new JCheckBox("Local_DNS", true);
 	private volatile DNSSolver dnsSolver = new DNSSolver(null);
 	private ServerThread serverThread;
 	private JTabbedPane tabbedPane = new JTabbedPane();
 	private WorkThread.ConnectionConf conf;
-	private JTextField listen_port,target_host, target_port;
+	private JTextField listen_port, target_host, target_port;
 
 	public MainWindow()
 	{
 		mainWindow.setSize(700, 300);
 		mainWindow.setLocationRelativeTo(null);
 		local_dns.addItemListener(item -> dnsSolver.needSolve.set(local_dns.isSelected()));
-		serverThread = new ServerThread(1380, "localhost", 1180, dnsSolver,this);
+		serverThread = new ServerThread(1380, "localhost", 1180, dnsSolver, this);
 		conf = serverThread.getConf();
 		systemTray = SystemTray.getSystemTray();
 		URL jpgURL = this.getClass().getClassLoader().getResource("icon.jpg");
@@ -78,7 +78,7 @@ public class MainWindow
 		target_host = new JTextField("127.0.0.1");
 		target_port = new JTextField("1180");
 		JButton startButton = new JButton("Start");
-		startButton.addActionListener(e->start());
+		startButton.addActionListener(e -> start());
 		tabbedPane.addTab("IP Filter", ipListPanel.getShowPanel());
 		tabbedPane.addTab("Host Filter", hostListPanel.getShowPanel());
 		tabbedPane.addTab("DNS", dnsPanel.getShowPanel());
@@ -102,6 +102,12 @@ public class MainWindow
 
 	public void start()
 	{
+		if (serverThread.getStarted().get())
+		{
+			JOptionPane.showMessageDialog(mainWindow, "请勿重复启动，如要切换端口，请先Exit。");
+			Log.default_log.info("Please Exit before modify configuration.");
+			return;
+		}
 		conf.targetPort = Integer.parseInt(target_port.getText());
 		conf.targetAddr = target_host.getText();
 		serverThread.setListenPort(Integer.parseInt(listen_port.getText()));
@@ -110,9 +116,9 @@ public class MainWindow
 			serverThread.start();
 		} catch (RuntimeException e)
 		{
-			Log.default_log.info("Listen port is already used");
+			Log.default_log.info("Listen port is already used.");
 		}
-		Log.default_log.info("Started");
+		Log.default_log.info("Started.");
 	}
 
 	private void hideWindow()

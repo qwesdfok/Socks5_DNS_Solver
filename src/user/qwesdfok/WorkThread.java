@@ -49,7 +49,6 @@ public class WorkThread extends Thread
 		{
 			try
 			{
-				StringBuilder sb = new StringBuilder();
 				while (true)
 				{
 					Thread.sleep(1);
@@ -58,14 +57,24 @@ public class WorkThread extends Thread
 						break;
 					outputStream.write(buffer, 0, length);
 					outputStream.flush();
-//					sb.delete(0, sb.length());
-//					for (int i = 0; i < length; i++)
-//						sb.append(String.format("%02d ", Byte.toUnsignedInt(buffer[i])));
-//					System.out.println(this.getName() + " <- " + length + " " + sb.toString());
 				}
 			} catch (IOException | InterruptedException e)
 			{
 //				e.printStackTrace();
+				try
+				{
+					inSocket.close();
+				} catch (IOException ex)
+				{
+					//ignore
+				}
+				try
+				{
+					targetSocket.close();
+				} catch (IOException ex)
+				{
+					//ignore
+				}
 			}
 		}
 	}
@@ -89,7 +98,6 @@ public class WorkThread extends Thread
 			OutputStream targetOutputStream = targetSocket.getOutputStream();
 			pipeThread = new PipeThread(targetInputStream, outputStream);
 			pipeThread.start();
-			StringBuilder sb = new StringBuilder();
 			while (true)
 			{
 				int length = inputStream.read(buffer);
@@ -115,10 +123,6 @@ public class WorkThread extends Thread
 				targetOutputStream.write(buffer, 0, length);
 				targetOutputStream.flush();
 				packet_count++;
-//				sb.delete(0, sb.length());
-//				for (int i = 0; i < length; i++)
-//					sb.append(String.format("%02d ", Byte.toUnsignedInt(buffer[i])));
-//				System.out.println(pipeThread.getName() + " -> " + length + " " + sb.toString());
 			}
 
 		} catch (IOException e)
@@ -126,6 +130,25 @@ public class WorkThread extends Thread
 //			e.printStackTrace();
 			conf.workThreadList.remove(this);
 			pipeThread.interrupt();
+		}
+	}
+
+	public void closeAll()
+	{
+		this.interrupt();
+		try
+		{
+			this.inSocket.close();
+		} catch (IOException e)
+		{
+			//ignore
+		}
+		try
+		{
+			this.targetSocket.close();
+		} catch (IOException e)
+		{
+			//ignore
 		}
 	}
 }

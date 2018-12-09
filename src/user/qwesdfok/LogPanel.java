@@ -24,6 +24,7 @@ public class LogPanel
 
 	public void printLog(String log)
 	{
+		System.out.print(log);
 		if (!printLog.isSelected())
 			return;
 		if (!log.endsWith("\n")) log += "\n";

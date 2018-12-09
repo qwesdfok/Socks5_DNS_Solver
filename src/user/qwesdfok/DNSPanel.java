@@ -16,11 +16,11 @@ public class DNSPanel
 		JCheckBox dnsSelection;
 		String filter;
 
-		public UnitPanel(String filter, boolean selected)
+		public UnitPanel(String filter,boolean selected)
 		{
 			this.filter = filter;
-			dnsSelection = new JCheckBox(filter, selected);
-			dnsSelection.addItemListener(e -> toggle());
+			dnsSelection = new JCheckBox(filter,selected);
+			dnsSelection.addItemListener(e->toggle());
 			JButton delete = new JButton("D");
 			delete.addActionListener(e -> delete());
 			uiTools.resetAuto();
@@ -69,7 +69,7 @@ public class DNSPanel
 		addPanel.add(addButton, uiTools.autoConfig(0.0, 0.0));
 		for (String data : dataList)
 		{
-			UnitPanel unitPanel = new UnitPanel(data, true);
+			UnitPanel unitPanel = new UnitPanel(data,true);
 			dataInfo.putIfAbsent(data, unitPanel);
 		}
 		conf.dns.addAll(dnsSolver.dns_list);
@@ -91,7 +91,7 @@ public class DNSPanel
 
 	private void add(String filter)
 	{
-		UnitPanel unitPanel = new UnitPanel(filter, false);
+		UnitPanel unitPanel = new UnitPanel(filter,false);
 		UnitPanel old = dataInfo.putIfAbsent(filter, unitPanel);
 		if (old != null) return;
 		dataList.add(filter);
