@@ -5,6 +5,7 @@ import Libs.Log;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Paths;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -21,12 +22,11 @@ public class DNSSolver
 	private static final String HOST_FILTER = "host_filter";
 	private static final String DNS_LIST = "dns_list";
 	private static final String END = "end";
-	public static final String DNS_DEFAULT = "dns_default";
 
-	public DNSSolver(String save_path)
+	public DNSSolver(String save_dir)
 	{
-		if (save_path == null) save_path = "./config.txt";
-		this.save_path = save_path;
+		if (save_dir == null) save_dir = ".";
+		save_path = Paths.get(save_dir, "/config.txt").toString();
 		if (new File(save_path).exists())
 		{
 			read();
@@ -44,14 +44,14 @@ public class DNSSolver
 	public InetAddress solve(String host, Vector<String> dns)
 	{
 		if (!needSolve.get()) return null;
-		if (dns == null || dns.size()==0)
+		if (dns == null || dns.size() == 0)
 		{
 			System.clearProperty("sun.net.spi.nameservice.provider.1");
 			System.clearProperty("sun.net.spi.nameservice.nameservers");
 		} else
 		{
 			StringBuilder sb = new StringBuilder();
-			for (String s:dns) sb.append(s).append(",");
+			for (String s : dns) sb.append(s).append(",");
 			sb.deleteCharAt(sb.length() - 1);
 			System.setProperty("sun.net.spi.nameservice.provider.1", "dns,sun");
 			System.setProperty("sun.net.spi.nameservice.nameservers", sb.toString());

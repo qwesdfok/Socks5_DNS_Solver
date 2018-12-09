@@ -29,6 +29,7 @@ public class LogPanel
 			return;
 		if (!log.endsWith("\n")) log += "\n";
 		logArea.append(log);
+		logArea.repaint();
 	}
 
 	public JComponent getShowPanel()

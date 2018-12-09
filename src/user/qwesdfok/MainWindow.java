@@ -2,6 +2,8 @@ package user.qwesdfok;
 
 import Libs.Log;
 import Libs.UITools;
+import com.registry.RegistryKey;
+import com.registry.ValueType;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +11,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 
 public class MainWindow
 {
@@ -22,6 +30,8 @@ public class MainWindow
 	private JTabbedPane tabbedPane = new JTabbedPane();
 	private WorkThread.ConnectionConf conf;
 	private JTextField listen_port, target_host, target_port;
+	private static final String REG_VALUE_NAME = "DNS_Solver";
+	private static final String REG_KEY_NAME = "\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
 	public MainWindow()
 	{
@@ -74,6 +84,9 @@ public class MainWindow
 		ListPanel hostListPanel = new ListPanel(dnsSolver.host_blacklist, dnsSolver);
 		DNSPanel dnsPanel = new DNSPanel(dnsSolver.dns_list, dnsSolver, conf);
 		LogPanel logPanel = new LogPanel();
+		RegistryKey zkey = new RegistryKey(RegistryKey.getRootKeyForIndex(RegistryKey.HKEY_CURRENT_USER_INDEX), REG_KEY_NAME);
+		JCheckBox autoStart = new JCheckBox("AutoStart", zkey.valueExists(REG_VALUE_NAME));
+		autoStart.addItemListener(e -> configAutoStart(autoStart.isSelected()));
 		listen_port = new JTextField("1380");
 		target_host = new JTextField("127.0.0.1");
 		target_port = new JTextField("1180");
@@ -84,15 +97,20 @@ public class MainWindow
 		tabbedPane.addTab("DNS", dnsPanel.getShowPanel());
 		tabbedPane.addTab("Log", logPanel.getShowPanel());
 		mainWindow.add(tabbedPane, uiTools.autoConfig(5, 1, 1.0, 10.0));
+
 		mainWindow.add(local_dns, uiTools.nextLine().autoConfig());
+		mainWindow.add(autoStart, uiTools.autoConfig());
 		mainWindow.add(new JLabel("ListenPort:"), uiTools.autoConfig());
 		mainWindow.add(listen_port, uiTools.autoConfig());
 		mainWindow.add(startButton, uiTools.autoConfig());
+
 		mainWindow.add(new JLabel("TargetHost:"), uiTools.nextLine().autoConfig());
 		mainWindow.add(target_host, uiTools.autoConfig());
 		mainWindow.add(new JLabel("TargetPort:"), uiTools.autoConfig());
 		mainWindow.add(target_port, uiTools.autoConfig());
 		mainWindow.add(exitButton, uiTools.autoConfig());
+
+		if (autoStart.isSelected()) start();
 	}
 
 	public void enableVisible()
@@ -146,6 +164,46 @@ public class MainWindow
 			serverThread.interrupt();
 		systemTray.remove(trayIcon);
 		mainWindow.dispose();
+	}
+
+	private void configAutoStart(boolean enabled)
+	{
+		try
+		{
+			String dllPath = Paths.get("reg_x64.dll").toAbsolutePath().toString();
+			if (!new File(dllPath).exists())
+			{
+				InputStream dllFile = MainWindow.class.getClassLoader().getResourceAsStream("reg_x64.dll");
+				FileOutputStream outputStream = new FileOutputStream(dllPath);
+				byte[] buffer = new byte[1024];
+				int length = dllFile.read(buffer);
+				while (length != -1)
+				{
+					outputStream.write(buffer, 0, length);
+					length = dllFile.read(buffer);
+				}
+				dllFile.close();
+				outputStream.close();
+			}
+		} catch (IOException | NullPointerException e)
+		{
+			JOptionPane.showMessageDialog(mainWindow, "临时文件创建失败");
+			return;
+		}
+		try
+		{
+			RegistryKey zkey = new RegistryKey(RegistryKey.getRootKeyForIndex(RegistryKey.HKEY_CURRENT_USER_INDEX), REG_KEY_NAME);
+			zkey.deleteValue(REG_VALUE_NAME);
+			if (!enabled)
+				return;
+			String value = "\"" + Main.class.getProtectionDomain().getCodeSource().getLocation().getFile().substring(1) + "\"";
+			value = value.replaceAll("/", "\\\\");
+			Log.default_log.info(value);
+			zkey.newValue(REG_VALUE_NAME, ValueType.REG_SZ).setByteData(value.getBytes(StandardCharsets.UTF_16LE));
+		} catch (Exception e)
+		{
+			JOptionPane.showMessageDialog(mainWindow, "修改注册表失败");
+		}
 	}
 
 	public JFrame getMainWindow()
