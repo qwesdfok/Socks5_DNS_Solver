@@ -110,7 +110,7 @@ public class MainWindow
 		mainWindow.add(target_port, uiTools.autoConfig());
 		mainWindow.add(exitButton, uiTools.autoConfig());
 
-
+		copyDLL();
 		if (autoStart.isSelected())
 		{
 			serverThread.setShowMessage(false);
@@ -177,7 +177,7 @@ public class MainWindow
 		mainWindow.dispose();
 	}
 
-	private void configAutoStart(boolean enabled)
+	private void copyDLL()
 	{
 		try
 		{
@@ -199,8 +199,11 @@ public class MainWindow
 		} catch (IOException | NullPointerException e)
 		{
 			JOptionPane.showMessageDialog(mainWindow, "临时文件创建失败");
-			return;
 		}
+	}
+
+	private void configAutoStart(boolean enabled)
+	{
 		try
 		{
 			RegistryKey zkey = new RegistryKey(RegistryKey.getRootKeyForIndex(RegistryKey.HKEY_CURRENT_USER_INDEX), REG_KEY_NAME);
