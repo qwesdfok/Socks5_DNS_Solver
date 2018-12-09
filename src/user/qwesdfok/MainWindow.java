@@ -110,12 +110,23 @@ public class MainWindow
 		mainWindow.add(target_port, uiTools.autoConfig());
 		mainWindow.add(exitButton, uiTools.autoConfig());
 
-		if (autoStart.isSelected()) start();
-	}
 
-	public void enableVisible()
-	{
-		mainWindow.setVisible(true);
+		if (autoStart.isSelected())
+		{
+			serverThread.setShowMessage(false);
+			start();
+			try
+			{
+				systemTray.add(trayIcon);
+			} catch (AWTException e)
+			{
+				e.printStackTrace();
+				mainWindow.dispose();
+			}
+		} else
+		{
+			mainWindow.setVisible(true);
+		}
 	}
 
 	public void start()

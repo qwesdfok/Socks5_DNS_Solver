@@ -18,6 +18,7 @@ public class ServerThread extends Thread
 	private AtomicBoolean modified = new AtomicBoolean(false);
 	private AtomicBoolean started = new AtomicBoolean(false);
 	private MainWindow mainWindow;
+	private AtomicBoolean showMessage = new AtomicBoolean(true);
 
 //	private ArrayList<WorkThread> workThreadList = new ArrayList<>();
 
@@ -43,7 +44,8 @@ public class ServerThread extends Thread
 					serverSocket = new ServerSocket(listenPort);
 					retry = false;
 					started.set(true);
-					JOptionPane.showMessageDialog(mainWindow.getMainWindow(), "已启动");
+					if (showMessage.get())
+						JOptionPane.showMessageDialog(mainWindow.getMainWindow(), "已启动");
 				} catch (IOException e)
 				{
 					JOptionPane.showMessageDialog(mainWindow.getMainWindow(), "端口已经被占用");
@@ -98,5 +100,10 @@ public class ServerThread extends Thread
 	public AtomicBoolean getStarted()
 	{
 		return started;
+	}
+
+	public void setShowMessage(boolean showMessage)
+	{
+		this.showMessage.set(showMessage);
 	}
 }
