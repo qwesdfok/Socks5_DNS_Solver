@@ -85,7 +85,9 @@ public class MainWindow
 		ListPanel hostListPanel = new ListPanel(dnsSolver.host_blacklist, dnsSolver);
 		DNSPanel dnsPanel = new DNSPanel(dnsSolver.dns_list, dnsSolver, conf);
 		LogPanel logPanel = new LogPanel();
-		RegistryKey zkey = new RegistryKey(RegistryKey.getRootKeyForIndex(RegistryKey.HKEY_CURRENT_USER_INDEX), REG_KEY_NAME);
+		RegistryKey zkey = fetchRegistryKey();
+		if (zkey.valueExists(REG_VALUE_NAME))
+			configAutoStart(true);
 		JCheckBox autoStart = new JCheckBox("AutoStart", zkey.valueExists(REG_VALUE_NAME));
 		autoStart.addItemListener(e -> configAutoStart(autoStart.isSelected()));
 		listen_port = new JTextField("1380");
@@ -189,7 +191,10 @@ public class MainWindow
 		try
 		{
 			System.out.println("Copying dll");
+			RegistryKey zkey = fetchRegistryKey();
 			String dllPath = Paths.get("reg_x64.dll").toAbsolutePath().toString();
+			if (zkey.valueExists(REG_VALUE_NAME))
+				dllPath = Paths.get(new File(new String(zkey.getValue(REG_VALUE_NAME).getByteData())).getParent().replaceAll("[\"\u0000]", ""), "reg_x64.dll").toString();
 			if (!new File(dllPath).exists())
 			{
 				InputStream dllFile = this.getClass().getClassLoader().getResourceAsStream("reg_x64.dll");
@@ -207,7 +212,7 @@ public class MainWindow
 		} catch (IOException | NullPointerException e)
 		{
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(mainWindow, "临时文件创建失败");
+			JOptionPane.showMessageDialog(mainWindow, "临时文件创建失败" + e.getLocalizedMessage());
 		}
 	}
 
@@ -227,6 +232,11 @@ public class MainWindow
 		{
 			JOptionPane.showMessageDialog(mainWindow, "修改注册表失败");
 		}
+	}
+
+	private RegistryKey fetchRegistryKey()
+	{
+		return new RegistryKey(RegistryKey.getRootKeyForIndex(RegistryKey.HKEY_CURRENT_USER_INDEX), REG_KEY_NAME);
 	}
 
 	public JFrame getMainWindow()
