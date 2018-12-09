@@ -10,7 +10,7 @@ public class LogPanel
 {
 	private JTextArea logArea = new JTextArea();
 	private JPanel panel = new JPanel(new GridBagLayout());
-	private JScrollPane showPanel = new JScrollPane(panel);
+	private JScrollPane showPanel = new JScrollPane(logArea);
 	private JCheckBox printLog = new JCheckBox("Print Log", false);
 
 	public LogPanel()
@@ -19,7 +19,7 @@ public class LogPanel
 		Log.setDefault_log(new Log(this::printLog));
 		UITools uiTools = new UITools();
 		panel.add(printLog, uiTools.autoConfig(1, 1, 1.0, 0.0));
-		panel.add(logArea, uiTools.nextLine().autoConfig(2, 1, 1.0, 1.0));
+		panel.add(showPanel, uiTools.nextLine().autoConfig(2, 1, 1.0, 1.0));
 	}
 
 	public void printLog(String log)
@@ -34,6 +34,6 @@ public class LogPanel
 
 	public JComponent getShowPanel()
 	{
-		return showPanel;
+		return panel;
 	}
 }

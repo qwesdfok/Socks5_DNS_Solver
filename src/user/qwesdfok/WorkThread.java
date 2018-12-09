@@ -106,6 +106,7 @@ public class WorkThread extends Thread
 				if (packet_count == 1 && buffer[3] == 0x03)
 				{
 					byte domain_length = buffer[4];
+					byte[] hostPort = new byte[]{buffer[length - 2], buffer[length - 1]};
 					String domain_name = new String(buffer, 5, domain_length);
 					InetAddress addr = conf.dnsSolver.solve(domain_name, conf.dns);
 					if (addr != null)
@@ -116,7 +117,7 @@ public class WorkThread extends Thread
 						else
 							buffer[3] = 0x04;
 						System.arraycopy(addr_byte, 0, buffer, 4, addr_byte.length);
-						System.arraycopy(buffer, 5 + domain_length, buffer, 4 + addr_byte.length, 2);
+						System.arraycopy(hostPort, 0, buffer, 4 + addr_byte.length, 2);
 						length = 4 + addr_byte.length + 2;
 					}
 				}
