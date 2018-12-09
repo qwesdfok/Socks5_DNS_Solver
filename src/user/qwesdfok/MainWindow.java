@@ -35,6 +35,7 @@ public class MainWindow
 
 	public MainWindow()
 	{
+		copyDLL();
 		mainWindow.setSize(700, 300);
 		mainWindow.setLocationRelativeTo(null);
 		local_dns.addItemListener(item -> dnsSolver.needSolve.set(local_dns.isSelected()));
@@ -110,11 +111,8 @@ public class MainWindow
 		mainWindow.add(target_port, uiTools.autoConfig());
 		mainWindow.add(exitButton, uiTools.autoConfig());
 
-		copyDLL();
 		if (autoStart.isSelected())
 		{
-			serverThread.setShowMessage(false);
-			start();
 			try
 			{
 				systemTray.add(trayIcon);
@@ -123,6 +121,15 @@ public class MainWindow
 				e.printStackTrace();
 				mainWindow.dispose();
 			}
+			try
+			{
+				Thread.sleep(100);
+			} catch (InterruptedException e)
+			{
+				//ignore
+			}
+			serverThread.setShowMessage(false);
+			start();
 		} else
 		{
 			mainWindow.setVisible(true);
@@ -181,10 +188,11 @@ public class MainWindow
 	{
 		try
 		{
+			System.out.println("Copying dll");
 			String dllPath = Paths.get("reg_x64.dll").toAbsolutePath().toString();
 			if (!new File(dllPath).exists())
 			{
-				InputStream dllFile = MainWindow.class.getClassLoader().getResourceAsStream("reg_x64.dll");
+				InputStream dllFile = this.getClass().getClassLoader().getResourceAsStream("reg_x64.dll");
 				FileOutputStream outputStream = new FileOutputStream(dllPath);
 				byte[] buffer = new byte[1024];
 				int length = dllFile.read(buffer);
@@ -198,6 +206,7 @@ public class MainWindow
 			}
 		} catch (IOException | NullPointerException e)
 		{
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(mainWindow, "临时文件创建失败");
 		}
 	}
