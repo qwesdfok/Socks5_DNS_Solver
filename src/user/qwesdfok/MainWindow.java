@@ -191,13 +191,12 @@ public class MainWindow
 		try
 		{
 			System.out.println("Copying dll");
-			RegistryKey zkey = fetchRegistryKey();
 			String dllPath = Paths.get("reg_x64.dll").toAbsolutePath().toString();
-			if (zkey.valueExists(REG_VALUE_NAME))
-				dllPath = Paths.get(new File(new String(zkey.getValue(REG_VALUE_NAME).getByteData())).getParent().replaceAll("[\"\u0000]", ""), "reg_x64.dll").toString();
+//			String jarPath = new File(dllPath).getParent();
 			if (!new File(dllPath).exists())
 			{
-				InputStream dllFile = this.getClass().getClassLoader().getResourceAsStream("reg_x64.dll");
+				InputStream dllFile = this.getClass().getResourceAsStream("/reg_x64.dll");
+				System.out.println(dllFile.toString());
 				FileOutputStream outputStream = new FileOutputStream(dllPath);
 				byte[] buffer = new byte[1024];
 				int length = dllFile.read(buffer);
@@ -211,6 +210,13 @@ public class MainWindow
 			}
 		} catch (IOException | NullPointerException e)
 		{
+			RegistryKey zkey = fetchRegistryKey();
+			if (zkey.valueExists(REG_VALUE_NAME))
+			{
+				String dllPath = Paths.get(new File(new String(zkey.getValue(REG_VALUE_NAME).getByteData())).getParent().replaceAll("[\"\u0000]", ""), "reg_x64.dll").toString();
+				if (new File(dllPath).exists())
+					return;
+			}
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(mainWindow, "临时文件创建失败" + e.getLocalizedMessage());
 		}
