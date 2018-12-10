@@ -226,7 +226,7 @@ public class MainWindow
 	{
 		try
 		{
-			RegistryKey zkey = new RegistryKey(RegistryKey.getRootKeyForIndex(RegistryKey.HKEY_CURRENT_USER_INDEX), REG_KEY_NAME);
+			RegistryKey zkey = fetchRegistryKey();
 			zkey.deleteValue(REG_VALUE_NAME);
 			if (!enabled)
 				return;

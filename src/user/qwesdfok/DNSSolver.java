@@ -62,10 +62,12 @@ public class DNSSolver
 			for (InetAddress addr : addrs)
 			{
 				boolean blocked = false;
-				for (String blackDomain : host_blacklist)
+				Vector<String> list = (Vector<String>) host_blacklist.clone();
+				for (String blackDomain : list)
 					if (blockTest(blackDomain, host))
 						blocked = true;
-				for (String blackAddr : ip_blacklist)
+				list = (Vector<String>) ip_blacklist.clone();
+				for (String blackAddr : list)
 					if (blockTest(blackAddr, addr.getHostAddress()))
 						blocked = true;
 				if (!blocked)

@@ -9,6 +9,8 @@ import java.util.Vector;
 
 public class WorkThread extends Thread
 {
+	private static final int BUFFER_SIZE = 256 * 1024;
+
 	public static class ConnectionConf
 	{
 		int targetPort;
@@ -27,7 +29,7 @@ public class WorkThread extends Thread
 	}
 
 	private Socket inSocket, targetSocket;
-	private byte[] buffer = new byte[4 * 1024 * 1024];
+	private byte[] buffer = new byte[BUFFER_SIZE];
 	private PipeThread pipeThread;
 	private int packet_count;
 	private final ConnectionConf conf;
@@ -36,7 +38,7 @@ public class WorkThread extends Thread
 	{
 		InputStream inputStream;
 		OutputStream outputStream;
-		byte[] buffer = new byte[4 * 1024 * 1024];
+		byte[] buffer = new byte[BUFFER_SIZE];
 
 		public PipeThread(InputStream inputStream, OutputStream outputStream)
 		{
@@ -60,21 +62,7 @@ public class WorkThread extends Thread
 				}
 			} catch (IOException | InterruptedException e)
 			{
-//				e.printStackTrace();
-				try
-				{
-					inSocket.close();
-				} catch (IOException ex)
-				{
-					//ignore
-				}
-				try
-				{
-					targetSocket.close();
-				} catch (IOException ex)
-				{
-					//ignore
-				}
+				closeAll();
 			}
 		}
 	}
@@ -128,26 +116,27 @@ public class WorkThread extends Thread
 
 		} catch (IOException e)
 		{
-//			e.printStackTrace();
-			conf.workThreadList.remove(this);
-			pipeThread.interrupt();
+			closeAll();
 		}
 	}
 
 	public void closeAll()
 	{
-		this.interrupt();
+		WorkThread.this.interrupt();
+		pipeThread.interrupt();
 		try
 		{
-			this.inSocket.close();
-		} catch (IOException e)
+			if (!inSocket.isClosed())
+				inSocket.close();
+		} catch (IOException ex)
 		{
 			//ignore
 		}
 		try
 		{
-			this.targetSocket.close();
-		} catch (IOException e)
+			if (!targetSocket.isClosed())
+				targetSocket.close();
+		} catch (IOException ex)
 		{
 			//ignore
 		}
