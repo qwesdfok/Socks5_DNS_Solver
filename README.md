@@ -7,4 +7,5 @@
 <div>默认DNS服务器使用的是Google的8.8.8.8,8.8.4.4。</div>
 <div>Filter的作用是满足Filter（正则表达式）的Host或IP将不会被本地解析，还是会发送给Shadowsocks服务器进行解析</div>
 <div>例如：Host_Filter为“.*google\.com”那么所有以google.com结尾的网站的DNS解析会被该软件忽略，交给后续的Socks5代理进行解析。</div>
-
+<div>AutoStart：在HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run中添加启动项</div>
+<div>DNS：处理DNS的服务器</div>
